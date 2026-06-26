@@ -1,0 +1,4 @@
+backup:
+  root: /mnt/storage/Backup/backups
+  retention_days: 30
+  compression: true

@@ -1,0 +1,12 @@
+services:
+  emby:
+    compose: /home/sonjoy/server-services/emby
+    auto_restart: true
+
+  prometheus:
+    compose: /home/sonjoy/server-services/monitoring
+    auto_restart: true
+
+  grafana:
+    compose: /home/sonjoy/server-services/monitoring
+    auto_restart: true
