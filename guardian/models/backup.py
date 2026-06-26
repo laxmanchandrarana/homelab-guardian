@@ -1,17 +1,28 @@
-from datetime import datetime
-from typing import Optional
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String
 
-from sqlmodel import SQLModel, Field
+from guardian.database import Base
 
 
-class Backup(SQLModel, table=True):
+class Backup(Base):
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    __tablename__ = "backups"
 
-    service: str
+    id = Column(Integer, primary_key=True)
 
-    filename: str
+    filename = Column(String, unique=True)
 
-    size: str
+    sha256 = Column(String)
 
-    created: datetime = Field(default_factory=datetime.utcnow)
+    size = Column(Integer)
+
+    created = Column(DateTime)
+
+    verified = Column(Boolean)
+
+    location = Column(String)
+
+    status = Column(String)

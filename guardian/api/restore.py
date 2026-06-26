@@ -4,6 +4,10 @@ from fastapi import APIRouter, HTTPException
 
 from guardian.restore.verify import VerifyEngine
 
+from guardian.restore.planner import RestorePlanner
+
+planner = RestorePlanner()
+
 verify = VerifyEngine()
 
 router = APIRouter(
@@ -54,5 +58,12 @@ def verify_backup(name: str):
     file = BACKUP_DIR / name
 
     return verify.verify(file)
+
+@router.get("/plan/{name}")
+def restore_plan(name: str):
+
+    backup = BACKUP_DIR / name
+
+    return planner.analyze(backup)
 
 

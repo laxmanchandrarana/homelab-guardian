@@ -6,19 +6,16 @@ from sqlalchemy import String
 from guardian.database import Base
 
 
-class Incident(Base):
+class Audit(Base):
 
-    __tablename__ = "incidents"
+    __tablename__ = "audit"
 
     id = Column(Integer, primary_key=True)
 
     created = Column(DateTime)
 
-    severity = Column(String)
+    action = Column(String)
 
-    service = Column(String)
+    user = Column(String)
 
-    message = Column(String)
-
-    healed = Column(String)
-
+    details = Column(String)
