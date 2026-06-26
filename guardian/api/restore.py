@@ -2,13 +2,16 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
+from guardian.restore.verify import VerifyEngine
+
+verify = VerifyEngine()
+
 router = APIRouter(
     prefix="/restore",
     tags=["Restore"]
 )
 
-BACKUP_DIR = Path.home() / "backups"
-
+BACKUP_DIR = Path("/mnt/storage/Backup/backups")
 
 @router.get("/backups")
 def list_backups():
@@ -44,3 +47,12 @@ def backup_info(name: str):
         "size": stat.st_size,
         "modified": stat.st_mtime
     }
+
+@router.get("/verify/{name}")
+def verify_backup(name: str):
+
+    file = BACKUP_DIR / name
+
+    return verify.verify(file)
+
+
