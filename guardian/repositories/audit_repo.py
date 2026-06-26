@@ -4,14 +4,13 @@ from guardian.models.audit import Audit
 
 class AuditRepository:
 
-    def create(self, **kwargs):
+    def add(self, audit):
         db = SessionLocal()
-        obj = Audit(**kwargs)
-        db.add(obj)
+        db.add(audit)
         db.commit()
-        db.refresh(obj)
+        db.refresh(audit)
         db.close()
-        return obj
+        return audit
 
     def list(self):
         db = SessionLocal()

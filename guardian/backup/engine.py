@@ -1,23 +1,21 @@
 import subprocess
 from pathlib import Path
 from datetime import datetime
-from guardian.repositories.backup_repo import BackupRepository
+from guardian.backup.metadata import BackupMetadata
 
 BACKUP_ROOT = Path("/mnt/storage/Backup/backups")
-repo = BackupRepository()
+metadata = BackupMetadata()
+
 
 class BackupEngine:
 
     def create_directory(self):
-
         BACKUP_ROOT.mkdir(parents=True, exist_ok=True)
 
     def timestamp(self):
-
         return datetime.now().strftime("%Y%m%d-%H%M%S")
 
     def run(self, command):
-
         return subprocess.run(
             command,
             shell=True,
@@ -26,7 +24,6 @@ class BackupEngine:
         )
 
     def docker_backup(self):
-
         self.create_directory()
 
         filename = BACKUP_ROOT / f"docker-{self.timestamp()}.tar.gz"
@@ -34,22 +31,22 @@ class BackupEngine:
         cmd = (
             f"sudo /usr/bin/tar "
             f"--warning=no-file-changed "
+            f"--ignore-failed-read "
             f"-czpf {filename} "
             f"/home/sonjoy/server-services"
         )
 
-        return self.run(cmd)
+        result = self.run(cmd)
 
-    def sha256(path: Path):
-        h = hashlib.sha256()
+        data = {
+            "process": result,
+            "path": filename,
+        }
 
-        with open(path, "rb") as f:
-            while True:
-                chunk = f.read(1024 * 1024)
+        if filename.exists():
+            data["filename"] = metadata.filename(filename)
+            data["size"] = metadata.filesize(filename)
+            data["created"] = metadata.created(filename)
+            data["sha256"] = metadata.sha256(filename)
 
-                if not chunk:
-                    break
-
-                h.update(chunk)
-
-        return h.hexdigest()
+        return data
