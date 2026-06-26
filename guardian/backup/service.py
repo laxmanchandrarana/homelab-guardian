@@ -14,6 +14,8 @@ class BackupService:
 
     def run(self):
         result = self.engine.docker_backup()
+        print(result)
+
         process = result["process"]
 
         if "filename" in result:
@@ -28,13 +30,16 @@ class BackupService:
                 location=str(result["path"]),
                 status=status,
             )
+
             self.repo.add(backup)
 
             audit = Audit(
+                created=result["created"],
                 action=f"BACKUP_{status}",
-                resource=result["filename"],
-                status=status,
+                user="system",
+                details=result["filename"],
             )
+
             self.audit.add(audit)
 
         return process
