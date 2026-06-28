@@ -1,8 +1,7 @@
-from sqlalchemy import Boolean
 from sqlalchemy import Column
-from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import DateTime
 
 from guardian.database import Base
 
@@ -13,14 +12,10 @@ class Restore(Base):
 
     id = Column(Integer, primary_key=True)
 
-    backup = Column(String)
+    filename = Column(String)
 
     started = Column(DateTime)
 
-    finished = Column(DateTime)
+    completed = Column(DateTime)
 
-    duration = Column(Integer)
-
-    success = Column(Boolean)
-
-    rollback = Column(Boolean)
+    status = Column(String)

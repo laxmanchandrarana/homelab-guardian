@@ -1,0 +1,62 @@
+from datetime import datetime
+from guardian.restore.executor import RestoreExecutor
+from guardian.restore.jobs import RestoreJobs
+
+from guardian.repositories.restore_repo import RestoreRepository
+from guardian.repositories.audit_repo import AuditRepository
+
+from guardian.models.restore import Restore
+from guardian.models.audit import Audit
+
+
+class RestoreService:
+
+    def __init__(self):
+
+        self.executor = RestoreExecutor()
+
+        self.jobs = RestoreJobs()
+
+        self.repo = RestoreRepository()
+
+        self.audit = AuditRepository()
+
+        def run(self, filename):
+
+    self.jobs.create(filename)
+    self.jobs.update(filename, "RUNNING")
+
+    started = datetime.now()
+
+    result = self.executor.execute(filename)
+
+    completed = datetime.now()
+
+    status = "SUCCESS" if result["returncode"] == 0 else "FAILED"
+
+    self.repo.add(
+        Restore(
+            filename=filename,
+            started=started,
+            completed=completed,
+            status=status,
+        )
+    )
+
+    self.audit.add(
+        Audit(
+            created=completed,
+            action=f"RESTORE_{status}",
+            user="system",
+            details=filename,
+        )
+    )
+
+    self.jobs.update(filename, status)
+
+    return {
+        "job": self.jobs.get(filename),
+        "stdout": result["stdout"],
+        "stderr": result["stderr"],
+        "returncode": result["returncode"],
+    }

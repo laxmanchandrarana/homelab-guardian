@@ -1,0 +1,88 @@
+healing:
+  restart_limit: 3
+  cooldown: 300
+
+services:
+
+  # Auto-heal enabled
+  n8n:
+    enabled: true
+
+  nextcloud:
+    enabled: true
+
+  nextcloud-db:
+    enabled: true
+
+  grafana:
+    enabled: true
+
+  prometheus:
+    enabled: true
+
+  alertmanager:
+    enabled: true
+
+  cadvisor:
+    enabled: true
+
+  node-exporter:
+    enabled: true
+
+  smartctl-exporter:
+    enabled: true
+
+  blackbox-exporter:
+    enabled: true
+
+  portainer:
+    enabled: true
+
+  watchtower:
+    enabled: true
+
+  # Manual only (from your screenshot)
+  attendance-system:
+    enabled: false
+
+  backup-api:
+    enabled: false
+
+  backup-ui:
+    enabled: false
+
+  esphome:
+    enabled: false
+
+  homeassistant:
+    enabled: false
+
+  homepage:
+    enabled: false
+
+  jellyfin:
+    enabled: false
+
+  jenkins:
+    enabled: false
+
+  kimai:
+    enabled: false
+
+  kimai-db:
+    enabled: false
+
+  netdata:
+    enabled: false
+
+  openlist:
+    enabled: false
+
+  emby:
+    enabled: false
+
+  react-app-atmakriti:
+    enabled: false
+
+  big-bear-btop:
+    enabled: false

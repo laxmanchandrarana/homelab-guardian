@@ -5,6 +5,16 @@ client = docker.from_env()
 
 class DockerService:
 
+    def list(self):
+        return [
+            {
+                "id": c.id,
+                "name": c.name,
+                "status": c.status,
+            }
+            for c in client.containers.list(all=True)
+        ]
+
     def containers(self):
         return client.containers.list(all=True)
 

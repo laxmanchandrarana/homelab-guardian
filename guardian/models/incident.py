@@ -7,7 +7,6 @@ from guardian.database import Base
 
 
 class Incident(Base):
-
     __tablename__ = "incidents"
 
     id = Column(Integer, primary_key=True)
@@ -21,4 +20,3 @@ class Incident(Base):
     message = Column(String)
 
     healed = Column(String)
-

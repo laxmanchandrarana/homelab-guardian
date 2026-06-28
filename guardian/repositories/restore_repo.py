@@ -19,3 +19,22 @@ class RestoreRepository:
         db.close()
         return rows
 
+    def add(self, restore):
+        db = SessionLocal()
+        db.add(restore)
+        db.commit()
+        db.refresh(restore)
+        db.close()
+        return restore
+
+    def list(self):
+        db = SessionLocal()
+        rows = db.query(Restore).order_by(Restore.id.desc()).all()
+        db.close()
+        return rows
+
+    def latest(self):
+        db = SessionLocal()
+        row = db.query(Restore).order_by(Restore.id.desc()).first()
+        db.close()
+        return row

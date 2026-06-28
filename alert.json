@@ -1,0 +1,14 @@
+{
+  "alerts": [
+    {
+      "status": "firing",
+      "labels": {
+        "severity": "critical",
+        "container": "n8n"
+      },
+      "annotations": {
+        "summary": "Container is down"
+      }
+    }
+  ]
+}
