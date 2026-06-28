@@ -140,7 +140,7 @@ def delete_rule(rule_id: int):
     return {"success": True}
 
 
-@router.post("/run/{rule_id}")
+@router.post("/rules/{rule_id}/run")
 def run_rule(rule_id: int):
 
     conn = get_connection()
@@ -160,7 +160,7 @@ def run_rule(rule_id: int):
     return result
 
 
-@router.post("/enable/{rule_id}")
+@router.post("/rules/{rule_id}/enable")
 def enable_rule(rule_id: int):
 
     conn = get_connection()
@@ -177,7 +177,7 @@ def enable_rule(rule_id: int):
     return {"success": True}
 
 
-@router.post("/disable/{rule_id}")
+@router.post("/rules/{rule_id}/disable")
 def disable_rule(rule_id: int):
 
     conn = get_connection()
@@ -230,4 +230,237 @@ def logs():
     conn.close()
 
     return [dict(r) for r in rows]
+
+@router.get("/summary")
+def automation_summary():
+
+    conn = get_connection()
+
+    rules = conn.execute(
+        "SELECT COUNT(*) FROM automation_rules"
+    ).fetchone()[0]
+
+    enabled = conn.execute(
+        "SELECT COUNT(*) FROM automation_rules WHERE enabled=1"
+    ).fetchone()[0]
+
+    jobs = conn.execute(
+        "SELECT COUNT(*) FROM automation_jobs"
+    ).fetchone()[0]
+
+    failed = conn.execute(
+        "SELECT COUNT(*) FROM automation_jobs WHERE status='failed'"
+    ).fetchone()[0]
+
+    conn.close()
+
+    return {
+        "total_rules": rules,
+        "enabled_rules": enabled,
+        "jobs": jobs,
+        "failed_jobs": failed
+    }
+
+@router.get("/rules/{rule_id}")
+def rule_details(rule_id:int):
+
+    conn = get_connection()
+
+    row = conn.execute(
+        "SELECT * FROM automation_rules WHERE id=?",
+        (rule_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if not row:
+        raise HTTPException(404,"Rule not found")
+
+    return dict(row)
+
+@router.get("/rules/{rule_id}/history")
+def rule_history(rule_id:int):
+
+    conn=get_connection()
+
+    rows=conn.execute(
+        """
+        SELECT *
+        FROM automation_jobs
+        WHERE rule_id=?
+        ORDER BY id DESC
+        LIMIT 100
+        """,
+        (rule_id,)
+    ).fetchall()
+
+    conn.close()
+
+    return [dict(x) for x in rows]
+
+@router.get("/health")
+def health():
+
+    conn=get_connection()
+
+    rules=conn.execute(
+        "SELECT COUNT(*) FROM automation_rules"
+    ).fetchone()[0]
+
+    conn.close()
+
+    return {
+
+        "status":"healthy",
+
+        "rules":rules,
+
+        "engine":"running"
+
+    }
+
+@router.post("/rules/{rule_id}/toggle")
+def toggle_rule(rule_id: int):
+
+    conn = get_connection()
+
+    row = conn.execute(
+        "SELECT enabled FROM automation_rules WHERE id=?",
+        (rule_id,)
+    ).fetchone()
+
+    if not row:
+        conn.close()
+        raise HTTPException(404, "Rule not found")
+
+    enabled = 0 if row["enabled"] else 1
+
+    conn.execute(
+        """
+        UPDATE automation_rules
+        SET enabled=?
+        WHERE id=?
+        """,
+        (enabled, rule_id),
+    )
+
+    conn.commit()
+
+    conn.close()
+
+    return {
+        "success": True,
+        "enabled": bool(enabled),
+    }
+
+@router.delete("/rules/{rule_id}")
+def delete_rule(rule_id:int):
+
+    conn=get_connection()
+
+    conn.execute(
+        "DELETE FROM automation_rules WHERE id=?",
+        (rule_id,)
+    )
+
+    conn.commit()
+
+    conn.close()
+
+    return {"success":True}
+
+@router.get("/jobs/{job_id}")
+def job(job_id:int):
+
+    conn=get_connection()
+
+    row=conn.execute(
+        """
+        SELECT *
+        FROM automation_jobs
+        WHERE id=?
+        """,
+        (job_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if not row:
+        raise HTTPException(404,"Job not found")
+
+    return dict(row)
+
+@router.post("/rules/{rule_id}/run")
+def run_rule(rule_id:int):
+
+    conn=get_connection()
+
+    conn.execute(
+        """
+        INSERT INTO automation_jobs
+        (
+            rule_id,
+            service,
+            status,
+            progress
+        )
+        VALUES
+        (
+            ?,
+            'manual',
+            'running',
+            0
+        )
+        """,
+        (rule_id,)
+    )
+
+    job_id=conn.execute(
+        "SELECT last_insert_rowid()"
+    ).fetchone()[0]
+
+    conn.commit()
+
+    conn.close()
+
+    return {
+        "success":True,
+        "job_id":job_id
+    }
+
+@router.get("/logs")
+def logs():
+
+    conn=get_connection()
+
+    rows=conn.execute(
+        """
+        SELECT *
+        FROM automation_logs
+        ORDER BY id DESC
+        LIMIT 100
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return [dict(x) for x in rows]
+
+@router.get("/jobs")
+def jobs():
+
+    conn=get_connection()
+
+    rows=conn.execute(
+        """
+        SELECT *
+        FROM automation_jobs
+        ORDER BY id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return [dict(x) for x in rows]
+
 

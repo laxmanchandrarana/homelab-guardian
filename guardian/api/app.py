@@ -13,6 +13,7 @@ from guardian.api.alerts import router as alerts_router
 from guardian.api.ai import router as ai_router
 from guardian.api.prediction import router as prediction_router
 from guardian.api.automation import router as automation_router
+from guardian.api.automation_ai import router as automation_ai_router
 
 from guardian.monitoring.daemon import GuardianDaemon
 
@@ -83,3 +84,5 @@ app.include_router(alerts_router)
 app.include_router(ai_router)
 app.include_router(prediction_router)
 app.include_router(automation_router)
+app.include_router(automation_ai_router)
+
